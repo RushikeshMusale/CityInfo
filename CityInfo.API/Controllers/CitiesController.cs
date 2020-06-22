@@ -12,7 +12,7 @@ namespace CityInfo.API.Controllers
 
     //[Route("api/[Controller]")] // third way of routing
     [Route("api/cities")] // Preffered way of routing 
-    public class CitiesController: ControllerBase
+    public class CitiesController : ControllerBase
     {
         //[HttpGet("api/cities")] This is one way of routing
         //[Route("api/cities")] second way of routing
@@ -20,11 +20,13 @@ namespace CityInfo.API.Controllers
         [HttpGet]
         public JsonResult GetCities()
         {
-            return new JsonResult(new List<object>
-            {
-                new {id=1, Name="Pune"},
-                new {id=2, Name="Mumbai"}
-            });
+            return new JsonResult(CityDataStore.Current.Cities);
+        }
+
+        [HttpGet("{id}")]
+        public JsonResult GetCity(int id) 
+        {
+            return new JsonResult( CityDataStore.Current.Cities.FirstOrDefault(c=>c.Id == id));
         }
     }
 }
