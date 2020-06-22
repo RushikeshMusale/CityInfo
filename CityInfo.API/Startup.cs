@@ -26,7 +26,11 @@ namespace CityInfo.API
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseStatusCodePages(); // use for text based status page 
+            // NOTE: register it before MVC middleware
             app.UseMvc();
+
+            
             //No longer required
             //app.Run(async (context) =>
             //{
