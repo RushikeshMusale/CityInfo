@@ -18,15 +18,19 @@ namespace CityInfo.API.Controllers
         //[Route("api/cities")] second way of routing
 
         [HttpGet]
-        public JsonResult GetCities()
+        public IActionResult GetCities()
         {
-            return new JsonResult(CityDataStore.Current.Cities);
+            return Ok(CityDataStore.Current.Cities);
         }
 
         [HttpGet("{id}")]
-        public JsonResult GetCity(int id) 
+        public IActionResult GetCity(int id) 
         {
-            return new JsonResult( CityDataStore.Current.Cities.FirstOrDefault(c=>c.Id == id));
+            var citiesToReturn = CityDataStore.Current.Cities.FirstOrDefault(c => c.Id == id);
+            if (citiesToReturn == null)
+                return NotFound();
+
+            return Ok(citiesToReturn); 
         }
     }
 }
