@@ -19,19 +19,58 @@ namespace CityInfo.API
                 {
                     Id=1,
                     Name="Pune",
-                    Description="Center of education"
+                    Description="Center of education",
+                    PointOfInterests = new List<PointOfInterestDto>
+                    {
+                        new PointOfInterestDto
+                        {
+                            Id=1,
+                            Name="Shanivar Wada",
+                            Description ="Historical value"
+                        },
+                        new PointOfInterestDto
+                        {
+                            Id=2,
+                            Name="Tulshi Baug",
+                            Description ="Market"
+                        }
+                    }
                 },
                 new CityDto
                 {
                     Id=2,
                     Name="Mumbai",
-                    Description ="Financial capital"
+                    Description ="Financial capital",
+                    PointOfInterests = new List<PointOfInterestDto>
+                    {
+                        new PointOfInterestDto
+                        {
+                            Id=3,
+                            Name="Mumba Devi",
+                            Description ="Temple"
+                        },
+                        new PointOfInterestDto
+                        {
+                            Id=4,
+                            Name="Antilia",
+                            Description ="Richest Man's House"
+                        }
+                    }
                 },
                 new CityDto
                 {
                     Id=3,
                     Name= "Delhi",
-                    Description = "Capital of India"
+                    Description = "Capital of India",
+                    PointOfInterests = new List<PointOfInterestDto>
+                    {
+                        new PointOfInterestDto
+                        {
+                            Id=5,
+                            Name="Red Fort",
+                            Description ="Historical value"
+                        }                       
+                    }
                 }
             };
         }
