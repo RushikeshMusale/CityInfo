@@ -72,5 +72,37 @@ namespace CityInfo.API.Controllers
 
             return CreatedAtRoute("GetPointOfInterest", new { cityId, id = pointOfInterestDto.Id },pointOfInterestDto);
         }
+
+        [HttpPut]
+        [Route("{id}")]
+        public IActionResult UpdatePointOfInterest(int cityId, int id,PointOfInterestForUpdateDto pointOfInterest)
+        {
+            var city = CityDataStore.Current.Cities.FirstOrDefault(c => c.Id == cityId);
+            if (city == null)
+                return NotFound();
+
+            //if (pointOfInterest == null)
+            //    return BadRequest();  // Not required due to ApiController Atrribute.
+
+            if (pointOfInterest.Name == pointOfInterest.Description)
+            {
+                ModelState.AddModelError("Description", "Description should not be same as Name");
+            }
+
+            //This check is not required due to ApiController Attribute, but since we have added custom validation in previous line, let's add it
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var pointOfInterestFromStore = city.PointOfInterests.FirstOrDefault(p => p.Id == id);
+
+            if (pointOfInterestFromStore == null)
+                return NotFound();
+
+            pointOfInterestFromStore.Name = pointOfInterest.Name;
+            pointOfInterestFromStore.Description = pointOfInterest.Description;
+
+            return NoContent();
+
+        }
     }
 }
