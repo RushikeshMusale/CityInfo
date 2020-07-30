@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
@@ -48,6 +49,15 @@ namespace CityInfo.API.Controllers
 
             //if (pointOfInterest == null)
             //    return BadRequest();  // Not required due to ApiController Atrribute.
+
+            if(pointOfInterest.Name == pointOfInterest.Description)
+            {
+                ModelState.AddModelError("Description", "Description should not be same as Name");                
+            }
+
+            //This check is not required due to ApiController Attribute, but since we have added custom validation in previous line, let's add it
+            if (!ModelState.IsValid) 
+                return BadRequest(ModelState);
 
             int maxPointOfInterestId = CityDataStore.Current
                                         .Cities
