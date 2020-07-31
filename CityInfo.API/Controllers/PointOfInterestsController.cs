@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -16,14 +17,37 @@ namespace CityInfo.API.Controllers
     [Route("/api/cities/{cityId}/pointOfInterests")]
     public class PointOfInterestsController : ControllerBase
     {
+        private readonly ILogger<PointOfInterestsController> _logger;
+
+        // WebHost.CreateDefaultBuilder injects logger into container
+        // so we don't have to inject it explicity
+        public PointOfInterestsController(ILogger<PointOfInterestsController> logger)
+        {
+            _logger = logger?? throw new ArgumentNullException(nameof(logger));
+        }
+
         [HttpGet]
         public IActionResult GetPointOfInterests(int cityId)
         {
-            var cities = CityDataStore.Current.Cities.FirstOrDefault(c => c.Id == cityId);
-            if (cities == null)
-                return NotFound();
+            try
+            {
+               // throw new Exception();
+                var cities = CityDataStore.Current.Cities.FirstOrDefault(c => c.Id == cityId);
+                if (cities == null)
+                {
+                    _logger.LogInformation($"City with id {cityId} was not found while searching point of interests");
+                    return NotFound();
+                }
 
-            return Ok(cities.PointOfInterests);
+                return Ok(cities.PointOfInterests);
+            }
+            catch (Exception ex)
+            {
+                // We log the exception as critical & return internal server status code
+                _logger.LogCritical($"Exception while getting point of Interests for city id {cityId} ",ex);               
+                return StatusCode(500, "A problem happened while handling a request");
+            }                
+           
         }
 
         [HttpGet]
