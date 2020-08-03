@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CityInfo.API.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -23,15 +24,18 @@ namespace CityInfo.API
                     o.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter());
                 });
 
-                // To remove camel casing in output
-                //.AddJsonOptions(o =>
-                //{
-                //    if(o.SerializerSettings.ContractResolver != null)
-                //    {
-                //        var castedResolver = o.SerializerSettings.ContractResolver as DefaultContractResolver;
-                //        castedResolver.NamingStrategy = null;
-                //    }
-                //});
+            // To remove camel casing in output
+            //.AddJsonOptions(o =>
+            //{
+            //    if(o.SerializerSettings.ContractResolver != null)
+            //    {
+            //        var castedResolver = o.SerializerSettings.ContractResolver as DefaultContractResolver;
+            //        castedResolver.NamingStrategy = null;
+            //    }
+            //});
+
+            services.AddTransient<LocalMailService>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
