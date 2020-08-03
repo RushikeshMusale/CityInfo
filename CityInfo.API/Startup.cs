@@ -33,8 +33,11 @@ namespace CityInfo.API
             //        castedResolver.NamingStrategy = null;
             //    }
             //});
-
-            services.AddTransient<LocalMailService>();
+#if DEBUG
+            services.AddTransient<IMailService, LocalMailService>();
+#else
+            services.AddTransient<ILocalMailService, CloudMailService>();         
+#endif
 
         }
 

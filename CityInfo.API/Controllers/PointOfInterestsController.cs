@@ -19,14 +19,14 @@ namespace CityInfo.API.Controllers
     public class PointOfInterestsController : ControllerBase
     {
         private readonly ILogger<PointOfInterestsController> _logger;
-        private readonly LocalMailService _localMailService;
+        private readonly IMailService _mailService;
 
         // WebHost.CreateDefaultBuilder injects logger into container
         // so we don't have to inject it explicity
-        public PointOfInterestsController(ILogger<PointOfInterestsController> logger, LocalMailService localMailService)
+        public PointOfInterestsController(ILogger<PointOfInterestsController> logger, IMailService mailService)
         {
             _logger = logger?? throw new ArgumentNullException(nameof(logger));
-            _localMailService = localMailService ?? throw new ArgumentNullException(nameof(localMailService));
+            _mailService = mailService ?? throw new ArgumentNullException(nameof(mailService));
         }
 
         [HttpGet]
@@ -191,7 +191,7 @@ namespace CityInfo.API.Controllers
 
             city.PointOfInterests.Remove(pointOfInterestFromStore);
 
-            _localMailService.Send("Point Of Interest deleted",
+            _mailService.Send("Point Of Interest deleted",
                 $"Point of Interest {pointOfInterestFromStore.Name} with id {pointOfInterestFromStore.Id} was deleted");
 
             return NoContent();
