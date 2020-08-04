@@ -105,16 +105,15 @@ namespace CityInfo.API.Controllers
 
         [HttpPut]
         [Route("{id}")]
-        public IActionResult UpdatePointOfInterest(int cityId, int id,PointOfInterestForUpdateDto pointOfInterest)
+        public IActionResult UpdatePointOfInterest(int cityId, int id,PointOfInterestForUpdateDto poiForUpdateDto)
         {
-            var city = CityDataStore.Current.Cities.FirstOrDefault(c => c.Id == cityId);
-            if (city == null)
+            if (!_cityInfoRepository.CityExists(cityId))
                 return NotFound();
 
             //if (pointOfInterest == null)
             //    return BadRequest();  // Not required due to ApiController Atrribute.
 
-            if (pointOfInterest.Name == pointOfInterest.Description)
+            if (poiForUpdateDto.Name == poiForUpdateDto.Description)
             {
                 ModelState.AddModelError("Description", "Description should not be same as Name");
             }
@@ -123,14 +122,18 @@ namespace CityInfo.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var pointOfInterestFromStore = city.PointOfInterests.FirstOrDefault(p => p.Id == id);
+            var pointOfInterestFromStore = _cityInfoRepository.GetPointOfInterestForACity(cityId, id);
 
             if (pointOfInterestFromStore == null)
                 return NotFound();
 
-            pointOfInterestFromStore.Name = pointOfInterest.Name;
-            pointOfInterestFromStore.Description = pointOfInterest.Description;
+            // Since PointOfInterestForUpdateDto does not have id, this mapping works seamlessly
+            // it will ignore id property which is not present in our source.
+            // and correct id is already fetched from database in our target.
+            _mapper.Map(poiForUpdateDto, pointOfInterestFromStore);
 
+            _cityInfoRepository.Update(cityId, pointOfInterestFromStore);
+            _cityInfoRepository.Save();
             return NoContent();
 
         }

@@ -64,5 +64,12 @@ namespace CityInfo.API.Services
         {
             return (_context.SaveChanges() > 0);
         }
+
+        // In our case, we are using EntityFramework for persistance which tracks the updated entities
+        // Some framework may not track it, so a general repository should have Update method
+        public void Update(int cityId, PointOfInterest pointOfInterest)
+        {
+            
+        }
     }
 }
