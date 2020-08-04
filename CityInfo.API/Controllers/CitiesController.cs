@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CityInfo.API.Entities;
+using CityInfo.API.Model;
+using CityInfo.API.Services;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,23 +17,70 @@ namespace CityInfo.API.Controllers
     [Route("api/cities")] // Preffered way of routing 
     public class CitiesController : ControllerBase
     {
+        private readonly ICityInfoRepository _cityInfoRepository;
+
         //[HttpGet("api/cities")] This is one way of routing
         //[Route("api/cities")] second way of routing
+        public CitiesController(ICityInfoRepository cityInfoRepository)
+        {
+            _cityInfoRepository = cityInfoRepository ?? throw new ArgumentNullException(nameof(cityInfoRepository));
+        }
 
         [HttpGet]
         public IActionResult GetCities()
         {
-            return Ok(CityDataStore.Current.Cities);
+            var cities = _cityInfoRepository.GetCities();
+            var results = new List<CityWithoutPointOfInterests>();
+            foreach (var city in cities)
+            {
+                results.Add(new CityWithoutPointOfInterests
+                {
+                    Id = city.Id,
+                    Name = city.Name,
+                    Description = city.Description,
+                });
+            }
+            return Ok(results);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetCity(int id) 
+        public IActionResult GetCity(int id, bool includePointOfInterests = false) 
         {
-            var citiesToReturn = CityDataStore.Current.Cities.FirstOrDefault(c => c.Id == id);
-            if (citiesToReturn == null)
+            var city = _cityInfoRepository.GetCity(id, includePointOfInterests);
+
+            if (city == null)
                 return NotFound();
 
-            return Ok(citiesToReturn); 
+            if(includePointOfInterests)
+            {
+                var cityResult = new CityDto
+                {
+                    Id = city.Id,
+                    Name = city.Name,
+                    Description = city.Description
+                };
+
+                foreach (var pointOfInterest in city.PointOfInterests)
+                {
+                    cityResult.PointOfInterests.Add(new PointOfInterestDto
+                    {
+                        Id=  pointOfInterest.Id,
+                        Name = pointOfInterest.Name,
+                        Description = pointOfInterest.Description
+                    });
+                }
+
+                return Ok(cityResult);
+            }
+
+            var cityWithoutPointOfInterestsResult = new CityWithoutPointOfInterests
+            {
+                Id = city.Id,
+                Name = city.Name,
+                Description = city.Description,
+            };
+
+            return Ok(cityWithoutPointOfInterestsResult);                       
         }
     }
 }
