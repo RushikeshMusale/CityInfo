@@ -34,8 +34,8 @@ namespace CityInfo.API
                         var context = scope.ServiceProvider.GetService<CityInfoContext>();
 
                         // only for demo purpose, or for integration testing
-                        context.Database.EnsureDeleted();
-                        context.Database.Migrate();
+                        //context.Database.EnsureDeleted();
+                        //context.Database.Migrate();
                     }
                 }
                 catch (Exception ex)
