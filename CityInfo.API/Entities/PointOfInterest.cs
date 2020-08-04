@@ -16,5 +16,7 @@ namespace CityInfo.API.Entities
 
         public int CityId { get; set; }
 
+        public string Description { get; set; }
+
     }
 }
