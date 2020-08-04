@@ -80,16 +80,12 @@ namespace CityInfo.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreatePointOfInterest(int cityId, PointOfInterestForCreationDto pointOfInterest)
+        public IActionResult CreatePointOfInterest(int cityId, PointOfInterestForCreationDto pointOfInterestDto)
         {
-            var cities = CityDataStore.Current.Cities.FirstOrDefault(c => c.Id == cityId);
-            if (cities == null)
+            if (!_cityInfoRepository.CityExists(cityId))
                 return NotFound();
 
-            //if (pointOfInterest == null)
-            //    return BadRequest();  // Not required due to ApiController Atrribute.
-
-            if(pointOfInterest.Name == pointOfInterest.Description)
+            if(pointOfInterestDto.Name == pointOfInterestDto.Description)
             {
                 ModelState.AddModelError("Description", "Description should not be same as Name");                
             }
@@ -98,18 +94,13 @@ namespace CityInfo.API.Controllers
             if (!ModelState.IsValid) 
                 return BadRequest(ModelState);
 
-            int maxPointOfInterestId = CityDataStore.Current
-                                        .Cities
-                                        .SelectMany(c => c.PointOfInterests).Max(p => p.Id);
+            var pointOfInterestfinal = _mapper.Map<PointOfInterest>(pointOfInterestDto);
+            _cityInfoRepository.AddPointOfInterest(cityId, pointOfInterestfinal);
+            _cityInfoRepository.Save();
 
-            PointOfInterestDto pointOfInterestDto = new PointOfInterestDto
-            {
-                Id = ++maxPointOfInterestId,
-                Name = pointOfInterest.Name,
-                Description = pointOfInterest.Description
-            };
+            var pointOfInterestResult = _mapper.Map<PointOfInterestDto>(pointOfInterestfinal);
 
-            return CreatedAtRoute("GetPointOfInterest", new { cityId, id = pointOfInterestDto.Id },pointOfInterestDto);
+            return CreatedAtRoute("GetPointOfInterest", new { cityId, id = pointOfInterestResult.Id },pointOfInterestResult);
         }
 
         [HttpPut]

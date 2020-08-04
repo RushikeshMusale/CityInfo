@@ -53,5 +53,16 @@ namespace CityInfo.API.Services
         {
             return _context.Cities.Any(c => c.Id == cityId);
         }
+
+        public void AddPointOfInterest(int cityId, PointOfInterest pointOfInterestfinal)
+        {
+            var city = GetCity(cityId, false);
+            city.PointOfInterests.Add(pointOfInterestfinal);            
+        }
+
+        public bool Save()
+        {
+            return (_context.SaveChanges() > 0);
+        }
     }
 }
