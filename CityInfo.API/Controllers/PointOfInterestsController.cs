@@ -1,4 +1,5 @@
-﻿using CityInfo.API.Entities;
+﻿using AutoMapper;
+using CityInfo.API.Entities;
 using CityInfo.API.Model;
 using CityInfo.API.Services;
 using Microsoft.AspNetCore.JsonPatch;
@@ -22,14 +23,19 @@ namespace CityInfo.API.Controllers
         private readonly ILogger<PointOfInterestsController> _logger;
         private readonly IMailService _mailService;
         private ICityInfoRepository _cityInfoRepository;
+        private readonly IMapper _mapper;
 
         // WebHost.CreateDefaultBuilder injects logger into container
         // so we don't have to inject it explicity
-        public PointOfInterestsController(ILogger<PointOfInterestsController> logger, IMailService mailService, ICityInfoRepository cityInfoRepository)
+        public PointOfInterestsController(ILogger<PointOfInterestsController> logger,
+            IMailService mailService, 
+            ICityInfoRepository cityInfoRepository,
+            IMapper mapper)
         {
             _logger = logger?? throw new ArgumentNullException(nameof(logger));
             _mailService = mailService ?? throw new ArgumentNullException(nameof(mailService));
             _cityInfoRepository = cityInfoRepository ?? throw new ArgumentNullException(nameof(cityInfoRepository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpGet]
@@ -44,19 +50,8 @@ namespace CityInfo.API.Controllers
 
                 var pointOfInterestsForACity = _cityInfoRepository.GetPointOfInterestsForACity(cityId);
             
-                var pointOfinterestsResult = new List<PointOfInterestDto>();
-
-                foreach (var poi in pointOfInterestsForACity)
-                {
-                    pointOfinterestsResult.Add(new PointOfInterestDto
-                    {
-                        Id = poi.Id,
-                        Name = poi.Name,
-                        Description = poi.Description
-                    });
-                }
-                
-                return Ok(pointOfinterestsResult);
+               
+                return Ok(_mapper.Map<IEnumerable<PointOfInterestDto>>(pointOfInterestsForACity));
             }
             catch (Exception ex)
             {
@@ -79,14 +74,9 @@ namespace CityInfo.API.Controllers
             if (pointOfInterestsForACity == null)
                 return NotFound();
 
-            var pointOfInterestsResult = new PointOfInterestDto 
-            {
-                Id= pointOfInterestsForACity.Id,
-                Name= pointOfInterestsForACity.Name,
-                Description = pointOfInterestsForACity.Description
-            };
+         
 
-            return Ok(pointOfInterestsResult);
+            return Ok(_mapper.Map<PointOfInterestDto>(pointOfInterestsForACity));
         }
 
         [HttpPost]
