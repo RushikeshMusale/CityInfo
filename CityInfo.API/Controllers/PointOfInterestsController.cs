@@ -142,21 +142,17 @@ namespace CityInfo.API.Controllers
         public IActionResult PartialUpdatePointOfInterest(int cityId, int id, 
             [FromBody]JsonPatchDocument<PointOfInterestForUpdateDto> patchDocument)
         {
-            var city = CityDataStore.Current.Cities.FirstOrDefault(c => c.Id == cityId);
-            if (city == null)
-                return NotFound();    
+            if (!_cityInfoRepository.CityExists(cityId))
+                return NotFound();
 
-            var pointOfinterestFromStore = city.PointOfInterests.FirstOrDefault(p => p.Id == id);
-            if (pointOfinterestFromStore == null)
+            var pointOfInterestFromStore = _cityInfoRepository.GetPointOfInterestForACity(cityId, id);
+
+            if (pointOfInterestFromStore == null)
                 return NotFound();
 
             // Step 1: get pointOfInterestForUpdateDto so that we can apply patch to it. 
             //(patch doc is of type PointOfINterestForUpdateDto)
-            var pointOfInterestToPatch = new PointOfInterestForUpdateDto
-            {
-                Name = pointOfinterestFromStore.Name,
-                Description = pointOfinterestFromStore.Description
-            };
+            var pointOfInterestToPatch = _mapper.Map<PointOfInterestForUpdateDto>(pointOfInterestFromStore);
 
             // Step 2: apply patch, if there are any errors it will be added to ModelState
             patchDocument.ApplyTo(pointOfInterestToPatch, ModelState);
@@ -176,8 +172,10 @@ namespace CityInfo.API.Controllers
                 return BadRequest(ModelState);
 
             // Step 5: update the data in the store
-            pointOfinterestFromStore.Name = pointOfInterestToPatch.Name;
-            pointOfinterestFromStore.Description = pointOfInterestToPatch.Description;
+            _mapper.Map(pointOfInterestToPatch, pointOfInterestFromStore);
+
+            _cityInfoRepository.Update(cityId, pointOfInterestFromStore);
+            _cityInfoRepository.Save();
 
             return NoContent();
         }
